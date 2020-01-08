@@ -1,3 +1,4 @@
 /costExplorer/settings.py
 .idea
-__pycache__
+costExplorer/__pycache__
+costExplorer/__pycache__/
