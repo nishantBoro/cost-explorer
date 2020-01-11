@@ -36,6 +36,18 @@ class CostExplorerView(generics.ListAPIView):
                 self.store[cost_type.parent_cost_type_id] = [{'id': cost_type.id, 'name': cost_type.name,
                                                               'amount': cost_type_amount}]
 
+    # while traversing down the tree, if the node is in stop_if_id_in[], stop traversing further down and return back
+    # Ex: if store = { Null:[1,2,3], 1:[4,5,6], 2:[7,8,9], 3:[10,11], 4:[12,13]...}, start traversing like:
+    #                                                   Null
+    #                                                / \     \
+    #                                               /  \      \
+    #                                             /    \       \
+    #                                            1      2       3
+    #                                          / \ \   / \ \   / \
+    #                                         4  5  6  7  8 9 10 11
+    #                                        / \ / \ / \ ...........
+    #                                       ........................
+    # until the next node doesnt exists in the store or if the node is in stop_if_id_in[]
     def get_cost_breakdown(self, stop_if_id_in, current, current_amount, results, return_check):
         if current not in self.store and str(current) in stop_if_id_in:
             return [], True, current_amount
@@ -97,7 +109,7 @@ class CostExplorerView(generics.ListAPIView):
                 project_json = {'id': project.id, 'name': project.title, 'amount': 0, 'breakdown': []}
                 stop_if_id_in = set(cost_types_query) if cost_types_query else {}
 
-                # build a dictionary in the pattern - parent_cost_type_id: [cost_type_ids..] i.e
+                # build a dictionary in the pattern - {parent_cost_type_id: [cost_type_ids..],..} i.e
                 # { Null:[1,2,3], 1:[4,5,6], 2:[7,8,9], 3:[10,11], 4:[12,13]...}
                 self.build_store(project, CostTypes.objects.all())
 
