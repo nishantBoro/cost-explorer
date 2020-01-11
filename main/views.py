@@ -25,7 +25,6 @@ class CostExplorerView(generics.ListAPIView):
                 self.projects.append(filtered_project[0])
 
     def build_store(self, project, all_cost_types):
-        print(all_cost_types)
         for cost_type in all_cost_types:
             cost_type_amount = Costs.objects.filter(cost_type_id=cost_type.id, project_id=project.id)
             if cost_type_amount:
@@ -67,6 +66,7 @@ class CostExplorerView(generics.ListAPIView):
             return 'stop', False, 0
 
     def get(self, request, *args, **kwargs):
+        # get query params
         clients_query = request.GET.getlist('clients[]')
         projects_query = request.GET.getlist('projects[]')
         cost_types_query = request.GET.getlist('cost_types[]')
@@ -97,7 +97,8 @@ class CostExplorerView(generics.ListAPIView):
                 project_json = {'id': project.id, 'name': project.title, 'amount': 0, 'breakdown': []}
                 stop_if_id_in = set(cost_types_query) if cost_types_query else {}
 
-                # build a dictionary in the pattern - { Null:[1,2,3], 1:[4,5,6], 2:[7,8,9], 3:[10,11], 4:[12,13]...}
+                # build a dictionary in the pattern - parent_cost_type_id: [cost_type_ids..] i.e
+                # { Null:[1,2,3], 1:[4,5,6], 2:[7,8,9], 3:[10,11], 4:[12,13]...}
                 self.build_store(project, CostTypes.objects.all())
 
                 # traverse recursively through the dictionary and get all child costs
@@ -110,5 +111,19 @@ class CostExplorerView(generics.ListAPIView):
                 self.store.clear()
             results[idx]['amount'] = total_cost_all_projects
             self.projects.clear()
-        return Response(results)
+
+        # remove redundant clients with no further breakdowns after filtering
+        final_res = []
+        for idx, client in enumerate(results):
+            if client['breakdown']:
+                final_projects = []
+                for idy, project in enumerate(client['breakdown']):
+                    if not project['breakdown'][0] == 'stop':
+                        final_projects.append(project)
+                client['breakdown'] = final_projects
+                if client['breakdown']:
+                    final_res.append(client)
+
+        del results
+        return Response(final_res)
 
