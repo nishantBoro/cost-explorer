@@ -5,6 +5,9 @@ class Clients(models.Model):
     id = models.AutoField(db_column='ID', primary_key=True)
     name = models.CharField(max_length=100, db_column='Name')
 
+    def __str__(self):
+        return self.name
+
     class Meta:
         db_table = 'clients'
 
@@ -14,6 +17,9 @@ class Projects(models.Model):
     title = models.CharField(max_length=100, db_column='Title')
     client_id = models.IntegerField(db_column='Client_ID')
 
+    def __str__(self):
+        return self.title
+
     class Meta:
         db_table = 'projects'
 
@@ -22,6 +28,9 @@ class CostTypes(models.Model):
     id = models.AutoField(db_column='ID', primary_key=True)
     name = models.CharField(max_length=100, db_column='Name')
     parent_cost_type_id = models.IntegerField(db_column='Parent_Cost_Type_ID', null=True)
+
+    def __str__(self):
+        return self.name
 
     class Meta:
         db_table = 'cost_types'
