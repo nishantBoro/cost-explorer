@@ -17,6 +17,10 @@ from django.contrib import admin
 from django.urls import path, re_path
 from main.views import CostExplorerView
 
+# Examples for some accepted URL's: http://127.0.0.1:8000/cost-explorer ,
+# http://127.0.0.1:8000/cost-explorer?cost_types[]=1&projects[]=2 ,
+# http://127.0.0.1:8000/cost-explorer?cost_types[]=5&clients[]=1&projects[]=2 ....
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     re_path(r'^cost-explorer$', CostExplorerView.as_view()),

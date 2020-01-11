@@ -109,8 +109,8 @@ class CostExplorerView(generics.ListAPIView):
                 project_json = {'id': project.id, 'name': project.title, 'amount': 0, 'breakdown': []}
                 stop_if_id_in = set(cost_types_query) if cost_types_query else {}
 
-                # build a dictionary in the pattern - {parent_cost_type_id: [cost_type_ids..],..} i.e
-                # { Null:[1,2,3], 1:[4,5,6], 2:[7,8,9], 3:[10,11], 4:[12,13]...}
+                # build a dictionary in the pattern - {parent_cost_type_id: [cost_type_ids..],..} from CostTypes db
+                # Ex: { Null:[1,2,3], 1:[4,5,6], 2:[7,8,9], 3:[10,11], 4:[12,13]...}
                 self.build_store(project, CostTypes.objects.all())
 
                 # traverse recursively through the dictionary and get all child costs
